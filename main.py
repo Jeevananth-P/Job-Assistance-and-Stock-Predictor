@@ -4,44 +4,40 @@ import yfinance as yf
 from prophet import Prophet
 from prophet.plot import plot_plotly
 from plotly import graph_objs as go
+import pytz
 
-START = "2015-01-01"
-TODAY = date.today().strftime("%Y-%m-%d")
-IST_TIMEZONE = 'Asia/Kolkata'
-
-st.title('Stock Prediction:')
+START = "2015-01-01"TODAY = date.today().strftime("%Y-%m-%d")
+IST_TIMEZONE = 'Asia/Kolkata'st.title('Stock Prediction:')
 st.write('(Tesla, Google, Microsoft, Facebook, Nvidia, Paypal, Adobe, Netflix)')
 
-stocks = ( 'TSLA', 'GOOG', 'MSFT', 'FB', 'AAPL', 'NVDA', 'PYPL', 'ADBE', 'NFLX')
+stocks = ('TSLA', 'GOOG', 'MSFT', 'FB', 'AAPL', 'NVDA', 'PYPL', 'ADBE', 'NFLX')
 selected_stocks = st.selectbox('Select Dataset for prediction', stocks)
 
 n_years = st.slider("Years of prediction:", 1, 5)
-period = n_years * 365
-
-@st.cache
-def load_data(ticker):
+period = n_years * 365@st.cachedef load_data(ticker):
     data = yf.download(ticker, START, TODAY)
-    data.reset_index(inplace=True)
-    return data
+    data = data.tz_localize(pytz.utc).tz_convert(IST_TIMEZONE)  # Localize and convert to IST    data.reset_index(inplace=True)  # Reset the index    return data
 
 data_load_state = st.text('Loading Data...')
 data = load_data(selected_stocks)
 data_load_state.text('Done !!')
 
 st.subheader('The Data:')
-st.dataframe(data.tail())  # Use st.dataframe instead of st.write for displaying dataframes
+st.dataframe(data.tail())
 
 def plot_data():
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=data['Date'], y=data['Open'], name='Stock_Open'))
     fig.add_trace(go.Scatter(x=data['Date'], y=data['Close'], name='Stock_Close'))
-    fig.layout.update(title_text="Time Series data with ranger slider", xaxis_rangeslider_visible=True)
+    fig.layout.update(title_text="Time Series data with range slider", xaxis_rangeslider_visible=True)
     st.plotly_chart(fig)
 
 plot_data()
 
-data_frame_train = data[['Date', 'Close']]
-data_frame_train = data_frame_train.rename(columns={"Date": "ds", "Close": "y"})
+data_frame_train = data[['Date', 'Close']].copy()
+data_frame_train.rename(columns={"Date": "ds", "Close": "y"}, inplace=True)
+
+# Remove timezone from 'ds' columndata_frame_train['ds'] = data_frame_train['ds'].dt.tz_localize(None)
 
 p = Prophet()
 p.fit(data_frame_train)
@@ -52,7 +48,7 @@ forecast = p.predict(future)
 st.subheader('Predicted output:')
 st.write(forecast.tail())
 
-st.subheader(f'The Forecast for {n_years} year :')
+st.subheader(f'The Forecast for {n_years} year:')
 fig1 = plot_plotly(p, forecast)
 st.plotly_chart(fig1)
 
