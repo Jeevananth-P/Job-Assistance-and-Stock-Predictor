@@ -11,7 +11,7 @@ def run():
     # Load CSV data
     @st.cache_resource
     def load_data():
-        data = pd.read_csv("ani/Naukri Jobs Data.csv")  # Update with your CSV file path
+        data = pd.read_csv("Naukri Jobs Data.csv")  # Update with your CSV file path
         return data
 
     data = load_data()
