@@ -11,7 +11,7 @@ setuptools-git
 python-dateutil
 tqdm
 streamlit
-yfinance==0.1.63
+yfinance
 DateTime
 prophet
 plotly
