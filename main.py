@@ -47,11 +47,8 @@ def main():
 
     if selected_program == "Unemployment Data":
         unemployment_data.run()
-
     elif selected_program == "Stock Prediction":
         stock_prediction.run()
-
-
     elif selected_program == "Job Openings Analysis":
         job_demands.run()
 
