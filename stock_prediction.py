@@ -31,7 +31,7 @@ def run():
     n_years = st.slider("Years of prediction:", 1, 5)
     period = n_years * 365
 
-    @st.cache_resource
+    @st.cache
     def load_data(ticker):
         data = yf.download(ticker, START, TODAY)
         data = data.tz_localize(pytz.utc).tz_convert(IST_TIMEZONE)  # Localize and convert to IST
